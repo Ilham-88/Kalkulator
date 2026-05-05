@@ -1,2 +1,0 @@
-# Kalkulator
-Tugas web dasar
