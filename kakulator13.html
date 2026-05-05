@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kalkulator Pro - Equal Span</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #000000;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            overflow: hidden;
+        }
+
+        .kalkulator {
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .layar-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px 10px;
+        }
+
+        #layar {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: #ffffff;
+            font-size: 4.5rem;
+            text-align: right;
+            outline: none;
+        }
+
+        .tombol-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            justify-items: center;
+            align-items: center;
+            padding-bottom: 40px;
+        }
+
+        button {
+            width: 75px;
+            height: 75px;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: scale(0.9);
+            filter: brightness(1.2);
+        }
+
+        .angka { background-color: #333333; color: white; }
+        .operator { background-color: #ff9f0a; color: white; font-size: 2.2rem; }
+        .fungsi-atas { background-color: #a5a5a5; color: black; }
+        .btn-back { background-color: #333333; color: #ff9f0a; font-size: 1.4rem; }
+
+        /* SEKARANG TOMBOL 0 SAMA DENGAN ANGKA LAIN */
+        .nol {
+            grid-column: span 1;
+            width: 75px;
+            border-radius: 50%;
+        }
+
+        /* TOMBOL SAMA DENGAN MENJADI LEBAR */
+        .sama-dengan {
+            grid-column: span 2; /* Mengambil 2 kolom */
+            width: 100%;
+            max-width: 165px; /* (75px * 2) + gap */
+            background-color: #ff9f0a;
+            color: white;
+            border-radius: 50px;
+            font-size: 2.5rem;
+        }
+
+        @media (max-width: 360px) {
+            button { width: 65px; height: 65px; font-size: 1.5rem; }
+            .sama-dengan { max-width: 140px; }
+            .tombol-container { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="kalkulator">
+        <div class="layar-container">
+            <input type="text" id="layar" readonly placeholder="0">
+        </div>
+        
+        <div class="tombol-container">
+            <button class="fungsi-atas" onclick="hapusLayar()">AC</button>
+            <button class="fungsi-atas" onclick="tambahKarakter('%')">%</button>
+            <button class="btn-back" onclick="hapusSatu()">&#9003;</button> 
+            <button class="operator" onclick="tambahKarakter('/')">&divide;</button>
+
+            <button class="angka" onclick="tambahKarakter('7')">7</button>
+            <button class="angka" onclick="tambahKarakter('8')">8</button>
+            <button class="angka" onclick="tambahKarakter('9')">9</button>
+            <button class="operator" onclick="tambahKarakter('*')">&times;</button>
+
+            <button class="angka" onclick="tambahKarakter('4')">4</button>
+            <button class="angka" onclick="tambahKarakter('5')">5</button>
+            <button class="angka" onclick="tambahKarakter('6')">6</button>
+            <button class="operator" onclick="tambahKarakter('-')">&minus;</button>
+
+            <button class="angka" onclick="tambahKarakter('1')">1</button>
+            <button class="angka" onclick="tambahKarakter('2')">2</button>
+            <button class="angka" onclick="tambahKarakter('3')">3</button>
+            <button class="operator" onclick="tambahKarakter('+')">+</button>
+
+            <!-- 0 sekarang bulat biasa -->
+            <button class="angka nol" onclick="tambahKarakter('0')">0</button>
+            <button class="angka" onclick="tambahKarakter('.')">,</button>
+            <!-- Sama Dengan sekarang yang lebar -->
+            <button class="sama-dengan" onclick="hitung()">=</button>
+        </div>
+    </div>
+
+    <script>
+        const layar = document.getElementById('layar');
+
+        function tambahKarakter(karakter) {
+            if (layar.value === '0' || layar.value === 'Error') {
+                layar.value = karakter;
+            } else {
+                layar.value += karakter;
+            }
+        }
+
+        function hapusLayar() {
+            layar.value = '';
+        }
+
+        function hapusSatu() {
+            if (layar.value === 'Error') {
+                layar.value = '';
+            } else {
+                layar.value = layar.value.toString().slice(0, -1);
+            }
+        }
+
+        function hitung() {
+            try {
+                let ekspresi = layar.value
+                    .replace(/&times;/g, '*')
+                    .replace(/&divide;/g, '/')
+                    .replace(/&minus;/g, '-')
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/')
+                    .replace(/-/g, '-');
+                
+                ekspresi = ekspresi.replace(/(\d+)%/g, '($1/100)');
+                let hasil = eval(ekspresi);
+                
+                if (hasil % 1 !== 0) {
+                    hasil = parseFloat(hasil.toFixed(8));
+                }
+                
+                layar.value = hasil;
+            } catch (err) {
+                layar.value = 'Error';
+            }
+        }
+    </script>
+</body>
+</html>
